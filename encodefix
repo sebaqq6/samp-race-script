@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Wprowadź kodowanie wejściowe (CP1250)
+FROM_ENCODING="CP1250"
+# Kodowanie wyjściowe (UTF-8)
+TO_ENCODING="UTF-8"
+
+# Funkcja do konwersji plików
+convert_files() {
+    local dir="$1"
+
+    # Przeszukaj katalog rekurencyjnie dla plików .pwn i .inc
+    find "$dir" -type f \( -name "*.pwn" -o -name "*.inc" \) | while read -r file; do
+        # Utwórz tymczasowy plik
+        temp_file=$(mktemp)
+
+        # Przekonwertuj plik
+        iconv -f "$FROM_ENCODING" -t "$TO_ENCODING" "$file" > "$temp_file"
+
+        # Zastąp oryginalny plik nowym plikiem
+        mv "$temp_file" "$file"
+
+        echo "Converted $file"
+    done
+}
+
+# Wywołanie funkcji dla bieżącego katalogu
+convert_files "."
+
+exit 0
